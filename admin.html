@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Painel — Bombas Êxito</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/admin.css"/>
+</head>
+<body>
+
+<!-- ⚠️ Se não estiver logado, o JS reenvia para login.html -->
+<!-- Por segurança visual, o painel começa escondido -->
+<div class="admin-app" id="adminApp" style="visibility:hidden">
+
+  <header class="admin-header">
+    <div class="brand-mini">🔥 BOMBAS ÊXITO · ADMIN</div>
+    <div style="display:flex;gap:10px">
+      <button id="resetBtn" class="btn-logout" style="background:rgba(255,210,0,.15);color:#FFD200">🔄 Recarregar preços</button>
+      <button id="logoutBtn" class="btn-logout">Sair</button>
+    </div>
+  </header>
+
+  <!-- Boas-vindas -->
+  <div class="welcome-banner">
+    <span>👋</span>
+    <div>
+      <b>Bem-vindo ao sistema!</b>
+      <small id="welcomeDate"></small>
+    </div>
+  </div>
+
+  <main class="admin-content">
+
+    <!-- Switches -->
+    <section class="panel">
+      <h2>⛽ Controlo de Disponibilidade</h2>
+      <p class="hint">Liga ou desliga cada combustível</p>
+      <div id="switchList" class="switch-list"></div>
+    </section>
+
+    <!-- Pedidos Pendentes -->
+    <section class="panel">
+      <div class="panel-head">
+        <h2>⏳ Pedidos Pendentes</h2>
+        <span class="count-badge" id="pendentesCount">0</span>
+      </div>
+      <p class="hint">Confirma se o pedido foi entregue ou cancela</p>
+      <div id="pendentesList" class="receipts-container">
+        <p class="empty">Sem pedidos pendentes.</p>
+      </div>
+    </section>
+
+    <!-- Histórico -->
+    <section class="panel">
+      <div class="panel-head">
+        <h2>📋 Histórico de Pedidos</h2>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <span class="count-badge green" id="entreguesCount">0 entregues</span>
+          <span class="count-badge red" id="canceladosCount">0 cancelados</span>
+          <button id="clearHistory" class="btn-clear">Limpar histórico</button>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Data</th>
+              <th>Cliente</th>
+              <th>Produto</th>
+              <th>Qtd</th>
+              <th>Modo</th>
+              <th>Total</th>
+              <th>Estado</th>
+            </tr>
+          </thead>
+          <tbody id="historicoBody">
+            <tr><td colspan="8" class="empty">Ainda sem histórico.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script src="js/config.js"></script>
+<script src="js/admin.js"></script>
+</body>
+</html>
