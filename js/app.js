@@ -28,11 +28,59 @@ const $ = s => document.querySelector(s);
 const $$ = s => document.querySelectorAll(s);
 const fmtMT = v => `${Number(v||0).toLocaleString('pt-PT')} MT`;
 
-/* ---------- NAVBAR ---------- */
-const hamburger = $('#hamburger');
-const navLinks = $('#navLinks');
-hamburger?.addEventListener('click', () => navLinks.classList.toggle('open'));
-navLinks?.querySelectorAll('a').forEach(a => a.addEventListener('click', () => navLinks.classList.remove('open')));
+/* ============================================================
+   NAVBAR — Menu mobile (versão corrigida)
+   ============================================================ */
+const hamburger = document.querySelector('#hamburger');
+const navLinks  = document.querySelector('#navLinks');
+
+function fecharMenu(){
+  if(navLinks)  navLinks.classList.remove('open');
+  if(hamburger) hamburger.classList.remove('active');
+  const overlay = document.querySelector('.nav-overlay');
+  if(overlay) overlay.classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+function abrirMenu(){
+  if(navLinks)  navLinks.classList.add('open');
+  if(hamburger) hamburger.classList.add('active');
+  const overlay = document.querySelector('.nav-overlay');
+  if(overlay) overlay.classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+if(hamburger && navLinks){
+  hamburger.addEventListener('click', (e) => {
+    e.stopPropagation();
+    if(navLinks.classList.contains('open')){
+      fecharMenu();
+    } else {
+      abrirMenu();
+    }
+  });
+
+  // Fecha ao clicar num link
+  navLinks.querySelectorAll('a').forEach(a => {
+    a.addEventListener('click', fecharMenu);
+  });
+
+  // Fecha ao clicar no overlay
+  const overlay = document.querySelector('.nav-overlay');
+  if(overlay){
+    overlay.addEventListener('click', fecharMenu);
+  }
+
+  // Fecha com ESC
+  document.addEventListener('keydown', e => {
+    if(e.key === 'Escape') fecharMenu();
+  });
+
+  // Fecha ao redimensionar para desktop
+  window.addEventListener('resize', () => {
+    if(window.innerWidth > 900) fecharMenu();
+  });
+}
 
 /* ---------- RENDER: FUEL CARDS ---------- */
 function renderFuelCards(){

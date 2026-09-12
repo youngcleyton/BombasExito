@@ -55,84 +55,216 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .container{width:min(1200px,92%);margin-inline:auto}
 
 /* ============================================================
-   NAVBAR
+   NAVBAR — FIXA E RESPONSIVA (SEM ZOOM, SEM EMPURRAR)
    ============================================================ */
+
 .navbar{
-  position:sticky;top:0;z-index:100;
+  position:fixed;
+  top:0;
+  left:0;
+  right:0;
+  width:100%;
+  z-index:1000;
+  background:rgba(5,9,24,.92);
   backdrop-filter:blur(14px);
-  background:rgba(5,9,24,.75);
-  border-bottom:1px solid var(--card-brd);
-  box-shadow:0 4px 20px rgba(0,0,0,.3);
+  -webkit-backdrop-filter:blur(14px);
+  border-bottom:1px solid rgba(30,99,214,.15);
+  box-shadow:0 2px 12px rgba(0,0,0,.35);
+  height:64px;
 }
-.nav-inner{display:flex;align-items:center;justify-content:space-between;padding:14px 0}
-.brand{display:flex;align-items:center;gap:10px}
+
+/* Compensa a navbar fixa em todo o site */
+body{
+  padding-top:64px;
+}
+
+.nav-inner{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0;
+  height:64px;
+  gap:16px;
+}
+
+/* ---------- MARCA ---------- */
+.brand{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  text-decoration:none;
+  flex-shrink:0;
+}
 .brand-logo{
-  width:38px;height:38px;
-  filter:drop-shadow(0 0 12px var(--vermelho-brilho))
-         drop-shadow(0 0 20px var(--azul-brilho));
+  width:36px;
+  height:36px;
+  filter:drop-shadow(0 0 10px rgba(227,6,19,.5));
 }
-.brand-text{display:flex;flex-direction:column;line-height:1}
+.brand-text{
+  display:flex;
+  flex-direction:column;
+  line-height:1;
+}
 .brand-text strong{
-  font-family:var(--display);
-  font-size:18px;
+  font-family:'Rajdhani',sans-serif;
+  font-size:17px;
   letter-spacing:.5px;
   font-weight:800;
 }
 .brand-text small{
-  color:var(--azul-claro);
-  font-size:10px;
-  letter-spacing:3px;
+  font-size:9px;
+  letter-spacing:2.5px;
   font-weight:700;
+  margin-top:2px;
 }
 
-/* ============ LETRAS AZUL / VERMELHO ============ */
-.azul{
-  color:var(--azul-claro);
-  text-shadow:0 0 10px var(--azul-brilho);
+/* ---------- LINKS (desktop) ---------- */
+.nav-links{
+  display:flex;
+  gap:24px;
+  align-items:center;
 }
-.vermelho{
-  color:var(--vermelho);
-  text-shadow:0 0 10px var(--vermelho-brilho);
-}
-.brand-text small .azul,
-.brand-text small .vermelho{
-  text-shadow:none;
-  font-weight:700;
-}
-
-/* ============ LINKS NAVBAR ============ */
-.nav-links{display:flex;gap:26px;align-items:center}
 .nav-links a{
-  font-size:14px;font-weight:500;
-  opacity:.85;transition:.2s;
-  position:relative;
+  font-size:14px;
+  font-weight:500;
+  opacity:.85;
+  transition:.2s;
+  white-space:nowrap;
+  color:#fff;
+  text-decoration:none;
 }
-.nav-links a::after{
-  content:'';
-  position:absolute;bottom:-4px;left:0;
-  width:0;height:2px;
-  background:linear-gradient(90deg,var(--azul-claro),var(--vermelho));
-  transition:width .3s;
-}
-.nav-links a:hover{opacity:1;color:var(--branco)}
-.nav-links a:hover::after{width:100%}
+.nav-links a:hover{opacity:1;color:var(--azul-claro,#1E63D6)}
 
 .btn-admin{
-  padding:8px 16px;
-  background:linear-gradient(135deg,var(--azul-claro),var(--vermelho));
+  padding:9px 18px;
+  background:linear-gradient(135deg,#1E63D6,#E30613);
   border-radius:8px;
-  font-weight:700;font-size:12px;letter-spacing:.5px;
-  box-shadow:0 6px 18px var(--azul-brilho);
+  font-weight:700;
+  font-size:12px;
+  letter-spacing:.5px;
+  color:#fff !important;
+  box-shadow:0 4px 14px rgba(30,99,214,.35);
   transition:.25s;
 }
 .btn-admin:hover{
-  transform:translateY(-2px);
-  box-shadow:0 10px 24px var(--vermelho-brilho);
+  transform:translateY(-1px);
+  box-shadow:0 6px 18px rgba(227,6,19,.4);
 }
 
-.hamburger{display:none;flex-direction:column;gap:5px;padding:8px}
-.hamburger span{width:24px;height:2px;background:var(--branco);border-radius:2px;transition:.3s}
+/* ---------- HAMBURGER (só mobile) ---------- */
+.hamburger{
+  display:none;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  gap:5px;
+  width:44px;
+  height:44px;
+  border-radius:10px;
+  background:rgba(30,99,214,.12);
+  border:1px solid rgba(30,99,214,.25);
+  padding:0;
+  cursor:pointer;
+  transition:.2s;
+  flex-shrink:0;
+  z-index:1001;
+  position:relative;
+}
+.hamburger span{
+  display:block;
+  width:22px;
+  height:2px;
+  background:#fff;
+  border-radius:2px;
+  transition:.3s ease;
+}
+.hamburger.active span:nth-child(1){
+  transform:translateY(7px) rotate(45deg);
+}
+.hamburger.active span:nth-child(2){
+  opacity:0;
+}
+.hamburger.active span:nth-child(3){
+  transform:translateY(-7px) rotate(-45deg);
+}
 
+/* ============================================================
+   MOBILE — ≤900px
+   ============================================================ */
+@media (max-width:900px){
+
+  /* Mostra hamburger */
+  .hamburger{display:flex;}
+
+  /* Menu lateral fixo (fora do ecrã por defeito) */
+  .nav-links{
+    position:fixed;
+    top:0;
+    right:-100%;
+    width:min(300px,80vw);
+    height:100vh;
+    height:100dvh;
+    flex-direction:column;
+    justify-content:flex-start;
+    align-items:stretch;
+    gap:0;
+    padding:80px 22px 30px;
+    background:linear-gradient(180deg,#050918,#02040C);
+    border-left:1px solid rgba(30,99,214,.3);
+    box-shadow:-20px 0 60px rgba(0,0,0,.7);
+    transition:right .3s cubic-bezier(.4,0,.2,1);
+    overflow-y:auto;
+    z-index:999;
+    margin:0;
+  }
+  .nav-links.open{
+    right:0;
+  }
+
+  /* Links grandes e tocáveis */
+  .nav-links a{
+    font-size:16px;
+    font-weight:600;
+    padding:16px 4px;
+    width:100%;
+    border-bottom:1px solid rgba(255,255,255,.07);
+    opacity:.9;
+  }
+  .nav-links a:active{
+    color:#1E63D6;
+  }
+
+  .btn-admin{
+    margin-top:20px;
+    text-align:center;
+    padding:14px;
+    font-size:14px;
+    border-radius:10px;
+  }
+}
+
+/* ---------- OVERLAY ESCURO ---------- */
+.nav-overlay{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.65);
+  z-index:998;
+  opacity:0;
+  transition:opacity .3s;
+  cursor:pointer;
+}
+.nav-overlay.active{
+  display:block;
+  opacity:1;
+}
+
+/* ---------- MOBILE PEQUENO ---------- */
+@media (max-width:380px){
+  .brand-text strong{font-size:15px}
+  .brand-text small{font-size:8px;letter-spacing:2px}
+  .brand-logo{width:32px;height:32px}
+}
 /* ============================================================
    BOTÕES
    ============================================================ */
