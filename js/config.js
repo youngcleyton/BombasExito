@@ -10,7 +10,7 @@ const CONFIG = {
     logo: "assents/images/logo.png"
   },
 
-  whatsapp: "25871632577",
+  whatsapp: "258871632577",
 
   // Preços por litro (base Quelimane + 20)
   precos: {
