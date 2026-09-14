@@ -16,7 +16,6 @@ const CONFIG = {
   precos: {
     gasolina: 98.14,
     diesel: 120.70,
-    querosene: 97.56,
     lubrificante: 300
   },
 
@@ -59,7 +58,6 @@ const CONFIG = {
 const PRODUTOS_PADRAO = [
   { id: "gasolina",    nome: "Gasolina",     preco: 98.14,  unidade: "MT/L",  disponivel: true, icon: "⛽",  desc: "Gasolina premium" },
   { id: "diesel",      nome: "Diesel",       preco: 120.70, unidade: "MT/L",  disponivel: true, icon: "🛢️", desc: "Diesel rodoviário" },
-  { id: "querosene",   nome: "Querosene",    preco: 97.56,  unidade: "MT/L",  disponivel: true, icon: "🔥",  desc: "Querosene doméstico" },
   { id: "lubrificante", nome: "Lubrificante", preco: 300,   unidade: "MT/un", disponivel: true, icon: "⚙️", desc: "Óleos e lubrificantes" }
 ];
 
