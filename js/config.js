@@ -10,7 +10,7 @@ const CONFIG = {
     logo: "assets/images/logo.png"
   },
 
-  whatsapp: "25871632577",
+  whatsapp: "258871632577",
 
   // ============ PREÇOS OFICIAIS (Quelimane / ARENE) ============
   precos: {
