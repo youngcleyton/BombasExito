@@ -27,7 +27,17 @@ const state = {
 
 const $ = s => document.querySelector(s);
 const $$ = s => document.querySelectorAll(s);
-const fmtMT = v => `${Number(v||0).toLocaleString('pt-PT')} MT`;
+const fmtMT = v => `${Number(v||0)} MT`;
+
+/* Arredondamento: ≥ .5 sobe, < .5 mantém */
+function arredondar(valor){
+  const inteiro = Math.floor(valor);
+  const decimal = valor - inteiro;
+  return decimal >= 0.5 ? inteiro + 1 : inteiro;
+}
+
+/* Formatar total já arredondado */
+const fmtTotal = v => `${arredondar(v)} MT`;
 
 /* ============================================================
    NAVBAR — Menu mobile (versão corrigida)
@@ -360,13 +370,14 @@ $('#toStep3')?.addEventListener('click', () => {
   renderSummary();
 });
 
-/* ---------- STEP 3: RESUMO ---------- */
+/* ---------- STEP 3: RESUMO (arredondado no total) ---------- */
 function renderSummary(){
   const p = state.produto;
   const precoUnit = p.preco || 0;
   const subtotal  = precoUnit * state.quantidade;
   const entrega   = calcularEntrega();
   const total     = subtotal + entrega;
+  const totalArr  = arredondar(total);
   const unidade   = p.unidade?.split('/')?.[1] || 'L';
   const tempo     = calcularTempo();
 
@@ -382,7 +393,7 @@ function renderSummary(){
     modoLabel = `Entrega — ${zonaNome}`;
     entregaLinha = `
       <div class="summary-row"><span>Tipo</span><b>${tipo} (${tempo})</b></div>
-      <div class="summary-row"><span>Taxa de entrega</span><b>${entrega === 0 ? 'GRÁTIS 🎉' : entrega + ' MT'}</b></div>
+      <div class="summary-row"><span>Taxa de entrega</span><b>${entrega} MT</b></div>
     `;
   }
 
@@ -413,7 +424,7 @@ function renderSummary(){
 
     <div class="summary-row total">
       <span>TOTAL</span>
-      <b>${total.toFixed(2)} MT</b>
+      <b>${totalArr} MT</b>
     </div>
   `;
 }
@@ -427,6 +438,7 @@ $('#confirmOrder')?.addEventListener('click', () => {
   const subtotal  = precoUnit * state.quantidade;
   const entrega   = calcularEntrega();
   const total     = subtotal + entrega;
+  const totalArr  = arredondar(total);
   const unidade   = p.unidade?.split('/')?.[1] || 'L';
   const tempo     = calcularTempo();
 
@@ -452,13 +464,12 @@ $('#confirmOrder')?.addEventListener('click', () => {
     endereco: state.endereco,
     referencia: state.referencia,
     entrega,
-    total,
+    total: totalArr,      // ← guarda já arredondado
     status: 'PENDENTE'
   };
   pedidos.unshift(pedido);
   Store.set('exito_pedidos', pedidos);
 
-  // Mensagem WhatsApp
   const linhas = [
     cfg.mensagemWhatsApp || 'Olá, Bombas Êxito!',
     '',
@@ -476,9 +487,9 @@ $('#confirmOrder')?.addEventListener('click', () => {
     state.modo === 'entrega' ? `Zona: ${zonaNome}` : '',
     state.modo === 'entrega' ? `Localização: ${state.endereco}` : '',
     state.modo === 'entrega' && state.referencia ? `Referência: ${state.referencia}` : '',
-    entrega > 0 ? `Taxa: ${entrega} MT` : 'Taxa: GRÁTIS',
+    entrega > 0 ? `Taxa: ${entrega} MT` : '',
     '',
-    `TOTAL: ${total.toFixed(2)} MT`,
+    `TOTAL: ${totalArr} MT`,
     '',
     `Pedido nº: ${pedido.id}`,
     'Pedido realizado através do site das Bombas Êxito.'
