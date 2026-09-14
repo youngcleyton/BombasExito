@@ -161,67 +161,98 @@
         <button class="btn btn-primary btn-block" id="toStep2">CONTINUAR →</button>
       </div>
 
-      <!-- STEP 2: Entrega -->
-      <div class="step" id="step2" hidden>
-        <span class="kicker">PASSO 2 DE 3</span>
-        <h2 class="order-title">Como quer receber?</h2>
+     <!-- STEP 2: Entrega -->
+<div class="step" id="step2" hidden>
+  <span class="kicker">PASSO 2 DE 3</span>
+  <h2 class="order-title">Como quer receber?</h2>
 
-        <div class="delivery-options">
-          <label class="delivery-card">
-            <input type="radio" name="modo" value="entrega" checked/>
-            <div class="dc-inner">
-              <span class="dc-icon">🚚</span>
-              <b>COM ENTREGA</b>
-              <small>Recebe no local indicado</small>
-            </div>
-          </label>
-          <label class="delivery-card">
-            <input type="radio" name="modo" value="levantamento"/>
-            <div class="dc-inner">
-              <span class="dc-icon">🏪</span>
-              <b>LEVANTAMENTO</b>
-              <small>Recolhe nas Bombas Êxito</small>
-            </div>
-          </label>
-        </div>
-
-        <div id="deliveryFields">
-          <div class="field">
-            <label>Zona de entrega</label>
-            <select id="zonaSelect"></select>
-          </div>
-
-          <!-- PREVIEW DELIVERY AUTOMÁTICO -->
-          <div class="delivery-preview" id="deliveryPreview"></div>
-
-          <div class="field">
-            <label>Endereço / Localização</label>
-            <input type="text" id="endereco" placeholder="Ex.: Bairro, rua, número"/>
-          </div>
-          <div class="field">
-            <label>Ponto de Referência</label>
-            <input type="text" id="referencia" placeholder="Ex.: Próximo ao mercado"/>
-          </div>
-          <button type="button" class="btn btn-outline btn-block" id="useLocation">
-            📍 Usar a minha localização
-          </button>
-          <small class="hint" id="locHint"></small>
-        </div>
-
-        <div class="field">
-          <label>Nome completo</label>
-          <input type="text" id="nome" placeholder="O seu nome"/>
-        </div>
-        <div class="field">
-          <label>Telefone</label>
-          <input type="tel" id="telefone" placeholder="Ex.: 84XXXXXXX"/>
-        </div>
-
-        <div class="order-nav">
-          <button class="btn btn-ghost" id="backStep1">← Voltar</button>
-          <button class="btn btn-primary" id="toStep3">CONTINUAR →</button>
-        </div>
+  <div class="delivery-options">
+    <label class="delivery-card">
+      <input type="radio" name="modo" value="levantamento"/>
+      <div class="dc-inner">
+        <span class="dc-icon">🏪</span>
+        <b>LEVANTAMENTO</b>
+        <small>Recolhe nas Bombas Êxito</small>
       </div>
+    </label>
+    <label class="delivery-card">
+      <input type="radio" name="modo" value="entrega" checked/>
+      <div class="dc-inner">
+        <span class="dc-icon">🚚</span>
+        <b>COM ENTREGA</b>
+        <small>Recebe no local indicado</small>
+      </div>
+    </label>
+  </div>
+
+  <!-- ZONAS (só quando é entrega) -->
+  <div id="deliveryFields">
+    <div class="field">
+      <label>Escolha a zona</label>
+      <select id="zonaSelect"></select>
+    </div>
+
+    <!-- TIPO DE ENTREGA (Normal / Premium) -->
+    <div class="field">
+      <label>Tipo de entrega</label>
+      <div class="delivery-speed">
+        <label class="speed-option">
+          <input type="radio" name="velocidade" value="normal" checked/>
+          <div class="speed-inner">
+            <span class="speed-icon">🕐</span>
+            <div>
+              <b>NORMAL</b>
+              <small>Entrega em até 1 hora</small>
+            </div>
+            <span class="speed-price" id="precoNormal">50 MT</span>
+          </div>
+        </label>
+
+        <label class="speed-option" id="premiumOption">
+          <input type="radio" name="velocidade" value="premium"/>
+          <div class="speed-inner premium">
+            <span class="speed-icon">⚡</span>
+            <div>
+              <b>PREMIUM</b>
+              <small>Entrega em até 30 minutos</small>
+            </div>
+            <span class="speed-price" id="precoPremium">100 MT</span>
+          </div>
+        </label>
+      </div>
+    </div>
+
+    <!-- Preview do valor -->
+    <div class="delivery-preview" id="deliveryPreview"></div>
+
+    <div class="field">
+      <label>Endereço / Localização</label>
+      <input type="text" id="endereco" placeholder="Ex.: Bairro, rua, número"/>
+    </div>
+    <div class="field">
+      <label>Ponto de Referência</label>
+      <input type="text" id="referencia" placeholder="Ex.: Próximo ao mercado"/>
+    </div>
+    <button type="button" class="btn btn-outline btn-block" id="useLocation">
+      📍 Usar a minha localização
+    </button>
+    <small class="hint" id="locHint"></small>
+  </div>
+
+  <div class="field">
+    <label>Nome completo</label>
+    <input type="text" id="nome" placeholder="O seu nome"/>
+  </div>
+  <div class="field">
+    <label>Telefone</label>
+    <input type="tel" id="telefone" placeholder="Ex.: 84XXXXXXX"/>
+  </div>
+
+  <div class="order-nav">
+    <button class="btn btn-ghost" id="backStep1">← Voltar</button>
+    <button class="btn btn-primary" id="toStep3">CONTINUAR →</button>
+  </div>
+</div>
 
       <!-- STEP 3: Resumo -->
       <div class="step" id="step3" hidden>

@@ -16,7 +16,8 @@ function getConfig(){ return Store.get('exito_config', CONFIG); }
 const state = {
   produto: null,
   quantidade: 1,
-  modo: 'entrega',
+  modo: 'entrega',           // 'entrega' | 'levantamento'
+  velocidade: 'normal',      // 'normal' | 'premium'
   endereco: '',
   referencia: '',
   nome: '',
@@ -200,24 +201,37 @@ $('#orderClose')?.addEventListener('click', () => {
   state.produto = null;
 });
 
-/* ---------- STEP 2: ENTREGA COM PREVIEW AUTOMÁTICO ---------- */
+/* ---------- STEP 2 ---------- */
 function renderStep2(){
   const cfg = getConfig();
   const sel = $('#zonaSelect');
+
   if(sel && cfg.entrega?.zonas?.length){
     sel.innerHTML = cfg.entrega.zonas.map((z,i) =>
-      `<option value="${i}">${z.nome} — ${z.valor} MT</option>`
+      `<option value="${i}">${z.nome}</option>`
     ).join('');
   }
 
+  // Modo (levantamento / entrega)
   $$('input[name="modo"]').forEach(r => {
     r.checked = r.value === state.modo;
-    r.addEventListener('change', () => {
+    r.onchange = () => {
       state.modo = r.value;
       toggleDeliveryFields();
       updateDeliveryPreview();
-    });
+      updateSpeedPrices();
+    };
   });
+
+  // Velocidade (normal / premium)
+  $$('input[name="velocidade"]').forEach(r => {
+    r.checked = r.value === state.velocidade;
+    r.onchange = () => {
+      state.velocidade = r.value;
+      updateDeliveryPreview();
+    };
+  });
+
   toggleDeliveryFields();
 
   if($('#endereco')) $('#endereco').value = state.endereco;
@@ -225,12 +239,16 @@ function renderStep2(){
   if($('#nome')) $('#nome').value = state.nome;
   if($('#telefone')) $('#telefone').value = state.telefone;
 
-  // Atualiza preview quando muda zona
-  sel?.addEventListener('change', () => {
-    state.zona = Number(sel.value);
-    updateDeliveryPreview();
-  });
-  state.zona = Number(sel?.value || 0);
+  if(sel){
+    state.zona = Number(sel.value || 0);
+    sel.onchange = () => {
+      state.zona = Number(sel.value);
+      updateSpeedPrices();
+      updateDeliveryPreview();
+    };
+  }
+
+  updateSpeedPrices();
   updateDeliveryPreview();
 }
 
@@ -239,31 +257,66 @@ function toggleDeliveryFields(){
   if(wrap) wrap.style.display = state.modo === 'entrega' ? 'block' : 'none';
 }
 
-/* ---------- DELIVERY AUTOMÁTICO ---------- */
-function calcularEntrega(){
+/* Atualiza os preços visíveis do Normal / Premium */
+function updateSpeedPrices(){
   const cfg = getConfig();
-  if(state.modo === 'levantamento') return 0;
-  if(state.quantidade >= (cfg.entrega?.gratisAcimaDe || 50)) return 0;
   const zona = cfg.entrega?.zonas?.[state.zona];
-  return zona ? zona.valor : 0;
+  if(!zona) return;
+
+  const precoNormal = zona.valor;
+  const mult = cfg.entrega?.premium?.multiplicador || 2;
+  const precoPremium = zona.valor * mult;
+
+  if($('#precoNormal'))  $('#precoNormal').textContent  = `${precoNormal} MT`;
+  if($('#precoPremium')) $('#precoPremium').textContent = `${precoPremium} MT`;
 }
 
+/* ---------- CÁLCULO DE ENTREGA ---------- */
+function calcularEntrega(){
+  const cfg = getConfig();
+
+  // Levantamento
+  if(state.modo === 'levantamento'){
+    return cfg.entrega?.levantamento || 30;
+  }
+
+  const zona = cfg.entrega?.zonas?.[state.zona];
+  if(!zona) return 0;
+
+  // Premium = dobro
+  if(state.velocidade === 'premium'){
+    const mult = cfg.entrega?.premium?.multiplicador || 2;
+    return zona.valor * mult;
+  }
+
+  return zona.valor;
+}
+
+/* Tempo estimado para mostrar no resumo */
+function calcularTempo(){
+  const cfg = getConfig();
+  if(state.modo === 'levantamento') return 'Imediato';
+  if(state.velocidade === 'premium') return cfg.entrega?.premium?.tempo || 'até 30 minutos';
+  return 'até 1 hora';
+}
+
+/* Preview dinâmico */
 function updateDeliveryPreview(){
   const preview = $('#deliveryPreview');
   if(!preview) return;
   const cfg = getConfig();
 
+  // Levantamento
   if(state.modo === 'levantamento'){
-    preview.innerHTML = `🏪 Levantamento nas Bombas Êxito — <b style="color:#00C853">GRÁTIS</b>`;
+    preview.innerHTML = `🏪 Levantamento nas Bombas Êxito — <b>${cfg.entrega?.levantamento || 30} MT</b>`;
     return;
   }
 
-  if(state.quantidade >= (cfg.entrega?.gratisAcimaDe || 50)){
-    preview.innerHTML = `🚚 Entrega — <b style="color:#00C853">GRÁTIS 🎉</b> (pedido ≥ 50L)`;
-  } else {
-    const valor = calcularEntrega();
-    preview.innerHTML = `🚚 Entrega — <b>${valor} MT</b>`;
-  }
+  const valor = calcularEntrega();
+  const tempo = calcularTempo();
+  const tipo = state.velocidade === 'premium' ? '⚡ Premium' : '🚚 Normal';
+
+  preview.innerHTML = `${tipo} · ${tempo} — <b>${valor} MT</b>`;
 }
 
 $('#useLocation')?.addEventListener('click', () => {
@@ -307,23 +360,30 @@ $('#toStep3')?.addEventListener('click', () => {
   renderSummary();
 });
 
-/* ---------- STEP 3: RESUMO (DELIVERY SEPARADO — OPÇÃO B) ---------- */
+/* ---------- STEP 3: RESUMO ---------- */
 function renderSummary(){
   const p = state.produto;
-  const precoUnit = p?.preco || 0;
-  const subtotal = precoUnit * state.quantidade;
-  const entrega = calcularEntrega();
-  const total = subtotal + entrega;
-  const unidade = p?.unidade?.split('/')?.[1] || 'L';
-  const cfg = getConfig();
+  const precoUnit = p.preco || 0;
+  const subtotal  = precoUnit * state.quantidade;
+  const entrega   = calcularEntrega();
+  const total     = subtotal + entrega;
+  const unidade   = p.unidade?.split('/')?.[1] || 'L';
+  const tempo     = calcularTempo();
 
+  let modoLabel = '';
   let entregaLinha = '';
+
   if(state.modo === 'levantamento'){
-    entregaLinha = `<div class="summary-row"><span>Entrega</span><b style="color:#00C853">GRÁTIS</b></div>`;
-  } else if(entrega === 0){
-    entregaLinha = `<div class="summary-row"><span>Entrega</span><b style="color:#00C853">GRÁTIS 🎉</b></div>`;
+    modoLabel = '🏪 Levantamento nas Bombas Êxito';
+    entregaLinha = `<div class="summary-row"><span>Taxa de levantamento</span><b>${entrega} MT</b></div>`;
   } else {
-    entregaLinha = `<div class="summary-row"><span>Entrega</span><b>${entrega} MT</b></div>`;
+    const zonaNome = getConfig().entrega?.zonas?.[state.zona]?.nome || '—';
+    const tipo = state.velocidade === 'premium' ? '⚡ Premium' : '🚚 Normal';
+    modoLabel = `Entrega — ${zonaNome}`;
+    entregaLinha = `
+      <div class="summary-row"><span>Tipo</span><b>${tipo} (${tempo})</b></div>
+      <div class="summary-row"><span>Taxa de entrega</span><b>${entrega === 0 ? 'GRÁTIS 🎉' : entrega + ' MT'}</b></div>
+    `;
   }
 
   $('#summary').innerHTML = `
@@ -332,12 +392,12 @@ function renderSummary(){
       <div class="summary-row"><span>Combustível</span><b>${p.nome}</b></div>
       <div class="summary-row"><span>Quantidade</span><b>${state.quantidade} ${unidade}</b></div>
       <div class="summary-row"><span>Preço</span><b>${precoUnit} MT / ${unidade}</b></div>
-      <div class="summary-row"><span>Subtotal</span><b>${fmtMT(subtotal)}</b></div>
+      <div class="summary-row"><span>Subtotal</span><b>${subtotal.toFixed(2)} MT</b></div>
     </div>
 
     <div class="summary-section">
       <h4>${state.modo === 'entrega' ? 'Entrega' : 'Levantamento'}</h4>
-      <div class="summary-row"><span>Modo</span><b>${state.modo === 'entrega' ? 'Entrega em casa' : 'Levantamento nas Bombas'}</b></div>
+      <div class="summary-row"><span>Modo</span><b>${modoLabel}</b></div>
       ${state.modo === 'entrega' ? `
         <div class="summary-row"><span>Endereço</span><b>${state.endereco}</b></div>
         ${state.referencia ? `<div class="summary-row"><span>Referência</span><b>${state.referencia}</b></div>` : ''}
@@ -346,29 +406,33 @@ function renderSummary(){
     </div>
 
     <div class="summary-section">
-      <h4>Dados do cliente</h4>
+      <h4>Cliente</h4>
       <div class="summary-row"><span>Nome</span><b>${state.nome}</b></div>
       <div class="summary-row"><span>Telefone</span><b>${state.telefone}</b></div>
     </div>
 
     <div class="summary-row total">
       <span>TOTAL</span>
-      <b>${fmtMT(total)}</b>
+      <b>${total.toFixed(2)} MT</b>
     </div>
   `;
 }
 
 $('#backStep2')?.addEventListener('click', () => goToStep(2));
 
-/* ---------- CONFIRMAR E ENVIAR WHATSAPP ---------- */
 $('#confirmOrder')?.addEventListener('click', () => {
   const cfg = getConfig();
   const p = state.produto;
-  const precoUnit = p?.preco || 0;
-  const subtotal = precoUnit * state.quantidade;
-  const entrega = calcularEntrega();
-  const total = subtotal + entrega;
-  const unidade = p?.unidade?.split('/')?.[1] || 'L';
+  const precoUnit = p.preco || 0;
+  const subtotal  = precoUnit * state.quantidade;
+  const entrega   = calcularEntrega();
+  const total     = subtotal + entrega;
+  const unidade   = p.unidade?.split('/')?.[1] || 'L';
+  const tempo     = calcularTempo();
+
+  const zonaNome = state.modo === 'entrega'
+    ? (cfg.entrega?.zonas?.[state.zona]?.nome || '—')
+    : 'Levantamento';
 
   const pedidos = Store.get('exito_pedidos', []);
   const pedido = {
@@ -382,6 +446,9 @@ $('#confirmOrder')?.addEventListener('click', () => {
     precoUnit,
     subtotal,
     modo: state.modo,
+    velocidade: state.velocidade,
+    zona: zonaNome,
+    tempo,
     endereco: state.endereco,
     referencia: state.referencia,
     entrega,
@@ -391,6 +458,7 @@ $('#confirmOrder')?.addEventListener('click', () => {
   pedidos.unshift(pedido);
   Store.set('exito_pedidos', pedidos);
 
+  // Mensagem WhatsApp
   const linhas = [
     cfg.mensagemWhatsApp || 'Olá, Bombas Êxito!',
     '',
@@ -400,25 +468,27 @@ $('#confirmOrder')?.addEventListener('click', () => {
     `Combustível: ${p.nome}`,
     `Quantidade: ${state.quantidade} ${unidade}`,
     `Preço: ${precoUnit} MT/${unidade}`,
-    `Subtotal: ${subtotal} MT`,
+    `Subtotal: ${subtotal.toFixed(2)} MT`,
     '',
-    state.modo === 'entrega' ? 'Entrega: Sim' : 'Levantamento nas Bombas Êxito',
+    state.modo === 'entrega'
+      ? `Entrega: ${state.velocidade === 'premium' ? '⚡ Premium' : '🚚 Normal'} (${tempo})`
+      : 'Levantamento nas Bombas Êxito',
+    state.modo === 'entrega' ? `Zona: ${zonaNome}` : '',
     state.modo === 'entrega' ? `Localização: ${state.endereco}` : '',
     state.modo === 'entrega' && state.referencia ? `Referência: ${state.referencia}` : '',
-    entrega > 0 ? `Taxa de entrega: ${entrega} MT` : 'Entrega: GRÁTIS',
+    entrega > 0 ? `Taxa: ${entrega} MT` : 'Taxa: GRÁTIS',
     '',
-    `TOTAL: ${total} MT`,
+    `TOTAL: ${total.toFixed(2)} MT`,
     '',
     `Pedido nº: ${pedido.id}`,
     'Pedido realizado através do site das Bombas Êxito.'
   ].filter(Boolean).join('\n');
 
-  const url = `https://wa.me/${cfg.whatsapp}?text=${encodeURIComponent(linhas)}`;
-  window.open(url, '_blank');
+  window.open(`https://wa.me/${cfg.whatsapp}?text=${encodeURIComponent(linhas)}`, '_blank');
 
   $('#pedido').hidden = true;
   state.produto = null;
-  alert('✅ Pedido registado! Continue a conversa no WhatsApp.');
+  alert('✅ Pedido registado! Continue no WhatsApp.');
 });
 
 /* ---------- GALERIA ---------- */

@@ -1060,3 +1060,62 @@ body{
   border-color:transparent;
   box-shadow:0 8px 20px rgba(255,0,0,.4);
 }
+/* ============================================================
+   SELETOR DE VELOCIDADE (Normal / Premium)
+   ============================================================ */
+.delivery-speed{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+
+.speed-option{cursor:pointer;display:block}
+.speed-option input{display:none}
+
+.speed-inner{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  padding:14px 16px;
+  border-radius:12px;
+  background:rgba(30,99,214,.06);
+  border:1.5px solid rgba(30,99,214,.2);
+  transition:.25s;
+}
+.speed-option input:checked + .speed-inner{
+  background:linear-gradient(135deg,rgba(30,99,214,.18),rgba(227,6,19,.1));
+  border-color:#1E63D6;
+  box-shadow:0 0 20px rgba(30,99,214,.25);
+}
+.speed-option input:checked + .speed-inner.premium{
+  background:linear-gradient(135deg,rgba(227,6,19,.2),rgba(255,210,0,.12));
+  border-color:#E30613;
+  box-shadow:0 0 20px rgba(227,6,19,.3);
+}
+
+.speed-icon{font-size:24px;flex-shrink:0}
+.speed-inner > div{flex:1}
+.speed-inner b{
+  display:block;
+  font-size:14px;
+  letter-spacing:.5px;
+  margin-bottom:2px;
+}
+.speed-inner small{
+  font-size:12px;
+  color:#98A2B3;
+}
+.speed-price{
+  font-family:'Rajdhani',sans-serif;
+  font-size:20px;
+  font-weight:700;
+  color:#1E63D6;
+  white-space:nowrap;
+}
+.speed-inner.premium .speed-price{color:#E30613}
+
+/* Mobile: preço por baixo em ecrãs pequenos */
+@media (max-width:400px){
+  .speed-inner{flex-wrap:wrap}
+  .speed-price{width:100%;text-align:right;margin-top:6px}
+}

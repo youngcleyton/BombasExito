@@ -127,11 +127,16 @@ function renderPendentes(){
           <div class="receipt-row"><span>Telefone</span><b>${p.telefone}</b></div>
           <div class="receipt-row"><span>Produto</span><b>${p.produto}</b></div>
           <div class="receipt-row"><span>Qtd</span><b>${p.quantidade} ${p.unidade || 'L'}</b></div>
-          <div class="receipt-row"><span>Modo</span><b>${p.modo === 'entrega' ? '🚚 Entrega' : '🏪 Levantamento'}</b></div>
-          ${p.modo === 'entrega' ? `
-            <div class="receipt-row"><span>Local</span><b>${p.endereco || '—'}</b></div>
-            ${p.referencia ? `<div class="receipt-row"><span>Ref.</span><b>${p.referencia}</b></div>` : ''}
-          ` : ''}
+          <div class="receipt-row"><span>Modo</span><b>${
+  p.modo === 'entrega'
+    ? `${p.velocidade === 'premium' ? '⚡ Premium' : '🚚 Normal'} — ${p.zona || '—'}`
+    : '🏪 Levantamento'
+}</b></div>
+${p.modo === 'entrega' ? `
+  <div class="receipt-row"><span>Local</span><b>${p.endereco || '—'}</b></div>
+  ${p.referencia ? `<div class="receipt-row"><span>Ref.</span><b>${p.referencia}</b></div>` : ''}
+  <div class="receipt-row"><span>Tempo</span><b>${p.tempo || 'até 1 hora'}</b></div>
+` : ''}
           <div class="receipt-row"><span>Entrega</span><b>${p.entrega === 0 ? 'GRÁTIS' : p.entrega + ' MT'}</b></div>
           <div class="receipt-row total"><span>TOTAL</span><b>${p.total} MT</b></div>
         </div>
