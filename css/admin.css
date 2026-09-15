@@ -162,3 +162,358 @@ a{color:inherit;text-decoration:none}
   .data-table{font-size:12px}
   .data-table th,.data-table td{padding:8px}
 }
+/* Botão Imprimir */
+.btn-imprimir{
+  background:linear-gradient(135deg,#1E63D6,#0A2B7A);
+  color:#fff;
+  padding:8px 14px;
+  border-radius:8px;
+  font-size:12px;
+  font-weight:700;
+  letter-spacing:.5px;
+  transition:.2s;
+}
+.btn-imprimir:hover{
+  transform:translateY(-2px);
+  box-shadow:0 8px 20px rgba(30,99,214,.4);
+}
+
+/* Botão mini para a tabela do histórico */
+.icon-btn-mini{
+  padding:6px 10px;
+  border-radius:6px;
+  background:rgba(30,99,214,.15);
+  color:#1E63D6;
+  font-size:14px;
+  transition:.2s;
+  border:1px solid rgba(30,99,214,.3);
+}
+.icon-btn-mini:hover{
+  background:#1E63D6;
+  color:#fff;
+}
+/* ============================================================
+   EXTRATO — TABELA TIPO EXCEL COM ALTURA FIXA
+   ============================================================ */
+
+.panel-extrato{
+  padding:20px;
+}
+
+.filtros{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+  margin:12px 0 14px;
+}
+.filtro-btn{
+  padding:7px 13px;
+  border-radius:100px;
+  font-size:12px;
+  font-weight:600;
+  background:rgba(30,99,214,.08);
+  border:1px solid rgba(30,99,214,.25);
+  color:#98A2B3;
+  transition:.2s;
+  cursor:pointer;
+}
+.filtro-btn:hover{background:rgba(30,99,214,.18);color:#fff}
+.filtro-btn.active{
+  background:linear-gradient(135deg,#1E63D6,#E30613);
+  color:#fff;
+  border-color:transparent;
+  box-shadow:0 4px 14px rgba(30,99,214,.35);
+}
+
+/* ===== CAIXA DA TABELA COM ALTURA FIXA ===== */
+.table-excel-wrap{
+  height:340px;              /* ← altura fixa: 340px (aprox. 7-8 linhas) */
+  overflow-y:auto;
+  overflow-x:auto;
+  border-radius:10px;
+  border:1px solid rgba(255,255,255,.08);
+  background:rgba(0,0,0,.25);
+  position:relative;
+}
+
+/* Scrollbar mais discreta */
+.table-excel-wrap::-webkit-scrollbar{
+  width:8px;
+  height:8px;
+}
+.table-excel-wrap::-webkit-scrollbar-track{
+  background:rgba(0,0,0,.3);
+}
+.table-excel-wrap::-webkit-scrollbar-thumb{
+  background:linear-gradient(135deg,#1E63D6,#E30613);
+  border-radius:4px;
+}
+.table-excel-wrap::-webkit-scrollbar-thumb:hover{
+  background:linear-gradient(135deg,#E30613,#1E63D6);
+}
+
+/* ===== TABELA ===== */
+.table-excel{
+  width:100%;
+  border-collapse:separate;
+  border-spacing:0;
+  font-size:12px;
+  min-width:1100px;
+}
+
+/* Cabeçalho FIXO (fica no topo enquanto faz scroll) */
+.table-excel thead th{
+  position:sticky;
+  top:0;
+  z-index:3;
+  background:#0A1230;
+  color:#FFD200;
+  padding:10px 8px;
+  text-align:left;
+  font-size:10px;
+  letter-spacing:1px;
+  text-transform:uppercase;
+  font-weight:700;
+  border-bottom:2px solid rgba(255,210,0,.3);
+  white-space:nowrap;
+  box-shadow:0 2px 6px rgba(0,0,0,.4);
+}
+
+.table-excel tbody td{
+  padding:9px 8px;
+  border-bottom:1px solid rgba(255,255,255,.05);
+  color:#E5E7EB;
+  vertical-align:middle;
+  white-space:nowrap;
+  background:#050918;
+}
+.table-excel tbody tr:nth-child(even) td{
+  background:rgba(30,99,214,.05);
+}
+.table-excel tbody tr:hover td{
+  background:rgba(30,99,214,.15);
+}
+
+.table-excel .badge{
+  padding:3px 8px;
+  border-radius:100px;
+  font-size:10px;
+  font-weight:700;
+  letter-spacing:.3px;
+}
+.badge-pendente{
+  background:rgba(255,210,0,.15);
+  color:#FFD200;
+  border:1px solid rgba(255,210,0,.35);
+}
+.badge-entregue{
+  background:rgba(0,200,83,.15);
+  color:#00C853;
+  border:1px solid rgba(0,200,83,.35);
+}
+.badge-cancelado{
+  background:rgba(227,6,19,.15);
+  color:#E30613;
+  border:1px solid rgba(227,6,19,.35);
+}
+
+.icon-btn-mini{
+  padding:5px 9px;
+  border-radius:6px;
+  background:rgba(30,99,214,.15);
+  color:#4D9FFF;
+  font-size:13px;
+  border:1px solid rgba(30,99,214,.3);
+  cursor:pointer;
+  transition:.2s;
+}
+.icon-btn-mini:hover{
+  background:#1E63D6;
+  color:#fff;
+}
+
+/* ===== RODAPÉ FIXO COM TOTAL (fora do scroll) ===== */
+.tabela-total-rodape{
+  display:flex;
+  justify-content:flex-end;
+  align-items:center;
+  gap:12px;
+  padding:14px 18px;
+  margin-top:10px;
+  background:linear-gradient(135deg,rgba(10,18,48,.95),rgba(227,6,19,.15));
+  border:1px solid rgba(255,210,0,.25);
+  border-radius:10px;
+  font-family:'Rajdhani',sans-serif;
+}
+.tabela-total-rodape span{
+  font-size:13px;
+  letter-spacing:2px;
+  color:#98A2B3;
+  font-weight:700;
+}
+.tabela-total-rodape b{
+  font-size:22px;
+  color:#FFD200;
+  font-weight:800;
+  text-shadow:0 0 15px rgba(255,210,0,.4);
+}
+
+/* ===== BOTÕES DE IMPRESSÃO ===== */
+.btn-imprimir{
+  padding:9px 16px;
+  border-radius:8px;
+  font-size:12px;
+  font-weight:700;
+  letter-spacing:.5px;
+  background:linear-gradient(135deg,#1E63D6,#0A2B7A);
+  color:#fff;
+  border:none;
+  cursor:pointer;
+  transition:.2s;
+  box-shadow:0 4px 14px rgba(30,99,214,.35);
+}
+.btn-imprimir:hover{
+  transform:translateY(-1px);
+  box-shadow:0 8px 20px rgba(30,99,214,.5);
+}
+.btn-imprimir-mini{
+  padding:7px 12px;
+  border-radius:8px;
+  font-size:11px;
+  font-weight:700;
+  background:linear-gradient(135deg,#1E63D6,#0A2B7A);
+  color:#fff;
+  border:none;
+  cursor:pointer;
+  transition:.2s;
+}
+.btn-imprimir-mini:hover{
+  transform:translateY(-1px);
+  box-shadow:0 6px 16px rgba(30,99,214,.4);
+}
+
+/* ===== RESPONSIVO ===== */
+@media (max-width:900px){
+  .table-excel-wrap{
+    height:280px;   /* menor no mobile */
+  }
+  .tabela-total-rodape b{
+    font-size:18px;
+  }
+}
+@media (max-width:600px){
+  .table-excel-wrap{
+    height:240px;
+  }
+  .panel-extrato{
+    padding:14px;
+  }
+  .btn-imprimir{
+    padding:7px 12px;
+    font-size:11px;
+  }
+}
+/* ============================================================
+   BOTÕES MINI NA TABELA (Entregue / Cancelar / Imprimir)
+   ============================================================ */
+.acoes-linha{
+  display:flex;
+  gap:4px;
+  align-items:center;
+  justify-content:center;
+  white-space:nowrap;
+}
+
+.btn-mini{
+  width:28px;
+  height:28px;
+  border-radius:6px;
+  font-size:13px;
+  font-weight:700;
+  border:none;
+  cursor:pointer;
+  transition:.2s;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:0;
+}
+
+.btn-entregue-mini{
+  background:rgba(0,200,83,.15);
+  color:#00C853;
+  border:1px solid rgba(0,200,83,.4);
+}
+.btn-entregue-mini:hover{
+  background:#00C853;
+  color:#fff;
+  transform:scale(1.1);
+}
+
+.btn-cancelar-mini{
+  background:rgba(227,6,19,.15);
+  color:#E30613;
+  border:1px solid rgba(227,6,19,.4);
+}
+.btn-cancelar-mini:hover{
+  background:#E30613;
+  color:#fff;
+  transform:scale(1.1);
+}
+
+.btn-imprimir-mini{
+  background:rgba(30,99,214,.15);
+  color:#4D9FFF;
+  border:1px solid rgba(30,99,214,.4);
+}
+.btn-imprimir-mini:hover{
+  background:#1E63D6;
+  color:#fff;
+  transform:scale(1.1);
+}
+
+.txt-final{
+  font-size:10px;
+  font-weight:700;
+  letter-spacing:.5px;
+  color:#98A2B3;
+  padding:0 4px;
+}
+/* ============================================================
+   BOTÕES: Fechar o Dia / Apagar Tudo
+   ============================================================ */
+.btn-fechar-dia{
+  padding:9px 16px;
+  border-radius:8px;
+  font-size:12px;
+  font-weight:700;
+  letter-spacing:.5px;
+  background:linear-gradient(135deg,#FFD200,#FFA000);
+  color:#0A1230;
+  border:none;
+  cursor:pointer;
+  transition:.2s;
+  box-shadow:0 4px 14px rgba(255,210,0,.35);
+}
+.btn-fechar-dia:hover{
+  transform:translateY(-1px);
+  box-shadow:0 8px 20px rgba(255,210,0,.55);
+}
+
+.btn-apagar-tudo{
+  padding:9px 16px;
+  border-radius:8px;
+  font-size:12px;
+  font-weight:700;
+  letter-spacing:.5px;
+  background:linear-gradient(135deg,#E30613,#B00410);
+  color:#fff;
+  border:none;
+  cursor:pointer;
+  transition:.2s;
+  box-shadow:0 4px 14px rgba(227,6,19,.35);
+}
+.btn-apagar-tudo:hover{
+  transform:translateY(-1px);
+  box-shadow:0 8px 20px rgba(227,6,19,.55);
+}

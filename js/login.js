@@ -13,9 +13,9 @@ const Store = {
 
 const SESSION_KEY = 'exito_admin_session';
 
-/* Se já tem sessão ativa, vai direto para o admin */
+/* Se já tem sessão ativa, vai direto para o painel */
 if(sessionStorage.getItem(SESSION_KEY) === 'ok'){
-  window.location.href = 'admin.html';
+  window.location.href = 'bombasexito.html';
 }
 
 /* Garantir config base */
@@ -39,7 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if(user === adminUser && pass === adminPass){
       sessionStorage.setItem(SESSION_KEY, 'ok');
-      window.location.href = 'admin.html';
+      window.location.href = 'exitoadmin.html';
     } else {
       $('#loginError').textContent = '❌ Credenciais inválidas. Tenta novamente.';
       $('#loginPass').value = '';

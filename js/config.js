@@ -48,9 +48,9 @@ const CONFIG = {
   },
 
   admin: {
-    user: "admin",
-    pass: "exito2025"
-  },
+  user: "gerenteexito",
+  pass: "Quelimane@2026"
+},
 
   mensagemWhatsApp: "Olá, Bombas Êxito! Gostaria de fazer um pedido de combustível.",
 };

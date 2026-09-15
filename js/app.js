@@ -29,10 +29,21 @@ const $ = s => document.querySelector(s);
 const $$ = s => document.querySelectorAll(s);
 const fmtMT = v => `${Number(v||0)} MT`;
 
-/* Arredondamento: ≥ .5 sobe, < .5 mantém */
+/* ============================================================
+   ARREDONDAMENTO CORRETO
+   - ≥ 0.5 → sobe (ex: 98.5 → 99)
+   - < 0.5 → desce (ex: 98.4 → 98)
+   - Corrige imprecisões do JavaScript (0.1+0.2 = 0.3000...04)
+   ============================================================ */
 function arredondar(valor){
-  const inteiro = Math.floor(valor);
-  const decimal = valor - inteiro;
+  // 1) Corrige o erro de vírgula flutuante do JavaScript
+  const corrigido = Math.round(valor * 100) / 100;
+
+  // 2) Separa inteiro e decimal
+  const inteiro = Math.floor(corrigido);
+  const decimal = corrigido - inteiro;
+
+  // 3) Aplica a regra: ≥ 0.5 sobe
   return decimal >= 0.5 ? inteiro + 1 : inteiro;
 }
 
