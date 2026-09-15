@@ -1,3 +1,18 @@
+// ============ VERSÃO DO CONFIG ============
+// ⚠️ AUMENTA ESTE NÚMERO sempre que mudares o config.js
+const CONFIG_VERSION = 2;
+
+// Limpa localStorage automaticamente se a versão for antiga
+(function sincronizarVersao(){
+  const versaoGuardada = parseInt(localStorage.getItem('exito_config_version') || '0');
+  if(versaoGuardada !== CONFIG_VERSION){
+    localStorage.removeItem('exito_config');
+    localStorage.removeItem('exito_produtos');
+    localStorage.setItem('exito_config_version', CONFIG_VERSION);
+    console.log('🔄 Config atualizado para versão', CONFIG_VERSION);
+  }
+})();
+
 const CONFIG = {
   empresa: {
     nome: "Bombas Êxito",
