@@ -4,35 +4,29 @@ const CONFIG = {
     cidade: "Quelimane",
     pais: "Moçambique",
     endereco: "Quelimane, Moçambique",
-    horario: "Segunda a Domingo — 06h00 às 22h00",
-    email: "geral@bombasexito.co.mz",
+    horario: "Segunda a Domingo — 05h00 às 22h00",
+    email: "bombasexito@gmail.com",
     telefone: "258871632577",
     logo: "assets/images/logo.png"
   },
 
   whatsapp: "258871632577",
 
-  // ============ PREÇOS OFICIAIS (Quelimane / ARENE) ============
   precos: {
     gasolina: 98.14,
     diesel: 120.70,
     lubrificante: 300
   },
 
-  // ============ ENTREGA ============
   entrega: {
     ativa: true,
-    gratisAcimaDe: null,   // 50L ou mais = entrega grátis
-    levantamento: 30,    // valor do levantamento no estabelecimento
-
-    // Zonas (valor normal, entrega até 1 hora)
+    gratisAcimaDe: null,
+    levantamento: 30,
     zonas: [
       { nome: "Arredores",            valor: 50,  tempo: "até 1 hora" },
       { nome: "Centro de Quelimane",  valor: 80,  tempo: "até 1 hora" },
       { nome: "Subúrbio",             valor: 110, tempo: "até 1 hora" }
     ],
-
-    // Modo premium: entrega em até 30 min, valor = dobro da zona
     premium: {
       ativo: true,
       tempo: "até 30 minutos",
@@ -48,11 +42,17 @@ const CONFIG = {
   },
 
   admin: {
-  user: "gerenteexito",
-  pass: "Quelimane@2026"
-},
+    user: "gerente",
+    pass: "Quelimane2026"
+  },
 
   mensagemWhatsApp: "Olá, Bombas Êxito! Gostaria de fazer um pedido de combustível.",
+
+  // ============ SUPABASE ============
+  supabase: {
+    url: "https://cioimqtlhjmnrrtympuk.supabase.co",
+    key: "sb_publishable_A9FacMkYBdXXVTzFJE9tVQ_I7xo-ErH"
+  }
 };
 
 const PRODUTOS_PADRAO = [

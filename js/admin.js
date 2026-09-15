@@ -19,6 +19,67 @@ const Store = {
   set(key, v){ localStorage.setItem(key, JSON.stringify(v)); }
 };
 
+/* ============================================================
+   SUPABASE — Ligação
+   ============================================================ */
+let supabaseClient = null;
+try{
+  if(window.supabase && CONFIG.supabase){
+    supabaseClient = window.supabase.createClient(
+      CONFIG.supabase.url,
+      CONFIG.supabase.key
+    );
+    console.log('✅ Admin ligado ao Supabase');
+  }
+}catch(err){
+  console.error('❌ Erro Supabase:', err);
+}
+
+/* ============================================================
+   CARREGAR PEDIDOS DO SUPABASE (substitui o localStorage)
+   ============================================================ */
+async function carregarPedidosDoServidor(){
+  if(!supabaseClient) return;
+  try{
+    const { data, error } = await supabaseClient
+      .from('pedidos')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if(error) throw error;
+
+    // Converte para o formato do admin
+    const pedidos = (data || []).map(p => ({
+      id: 'P' + p.id,
+      dbId: p.id,
+      data: p.created_at,
+      cliente: p.cliente,
+      telefone: p.telefone,
+      produto: p.produto,
+      quantidade: p.quantidade,
+      unidade: p.unidade,
+      precoUnit: p.preco_unit,
+      subtotal: p.subtotal,
+      modo: p.modo,
+      velocidade: p.velocidade,
+      zona: p.zona,
+      tempo: p.tempo,
+      endereco: p.endereco,
+      referencia: p.referencia,
+      entrega: p.taxa,
+      total: p.total,
+      status: p.status
+    }));
+
+    // Guarda em cache local para renderização rápida
+    Store.set('exito_pedidos', pedidos);
+    return pedidos;
+  }catch(err){
+    console.error('❌ Erro ao carregar:', err);
+    return Store.get('exito_pedidos', []);
+  }
+}
+
 function ensureData(){
   if(!localStorage.getItem('exito_config'))    Store.set('exito_config', CONFIG);
   if(!localStorage.getItem('exito_produtos'))  Store.set('exito_produtos', PRODUTOS_PADRAO);
@@ -28,8 +89,7 @@ ensureData();
 
 let filtroAtual = 'todos';
 
-/* ---------- INICIALIZAÇÃO ---------- */
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   const app = $('#adminApp');
   if(app) app.style.visibility = 'visible';
 
@@ -41,7 +101,17 @@ document.addEventListener('DOMContentLoaded', () => {
   const wd = $('#welcomeDate');
   if(wd) wd.textContent = `${dataFmt} · ${horaFmt}`;
 
+  // ✅ Carrega do Supabase primeiro
+  await carregarPedidosDoServidor();
+
   renderTudo();
+
+  // ✅ Atualiza a cada 30 segundos automaticamente
+  setInterval(async () => {
+    await carregarPedidosDoServidor();
+    renderPendentes();
+    renderTabela();
+  }, 30000);
 });
 
 /* ---------- LOGOUT ---------- */
@@ -270,22 +340,50 @@ $$('.filtro-btn').forEach(btn => {
   });
 });
 
-/* ---------- ATUALIZAR STATUS ---------- */
-/* ---------- ATUALIZAR STATUS ---------- */
-function atualizarStatus(id, novoStatus){
-  let pedidos = Store.get('exito_pedidos', []);
+async function atualizarStatus(id, novoStatus){
+  const pedidos = Store.get('exito_pedidos', []);
   const p = pedidos.find(x => x.id === id);
   if(!p) return;
 
-  if(novoStatus === 'CANCELADO'){
-    // ✅ Cancelado → APAGA o pedido de vez
-    pedidos = pedidos.filter(x => x.id !== id);
+  // ✅ Atualiza no Supabase
+  if(supabaseClient && p.dbId){
+    try{
+      if(novoStatus === 'CANCELADO'){
+        // Apaga no servidor
+        await supabaseClient
+          .from('pedidos')
+          .delete()
+          .eq('id', p.dbId);
+
+        // Remove localmente
+        const restantes = pedidos.filter(x => x.id !== id);
+        Store.set('exito_pedidos', restantes);
+      } else {
+        // Atualiza o status
+        await supabaseClient
+          .from('pedidos')
+          .update({ status: novoStatus })
+          .eq('id', p.dbId);
+
+        p.status = novoStatus;
+        Store.set('exito_pedidos', pedidos);
+      }
+    }catch(err){
+      console.error('❌ Erro ao atualizar:', err);
+      alert('Erro ao comunicar com o servidor.');
+      return;
+    }
   } else {
-    // ✅ Entregue → mantém no extrato com o novo estado
-    p.status = novoStatus;
+    // Fallback local
+    if(novoStatus === 'CANCELADO'){
+      const restantes = pedidos.filter(x => x.id !== id);
+      Store.set('exito_pedidos', restantes);
+    } else {
+      p.status = novoStatus;
+      Store.set('exito_pedidos', pedidos);
+    }
   }
 
-  Store.set('exito_pedidos', pedidos);
   renderPendentes();
   renderTabela();
 }
@@ -736,42 +834,46 @@ function desenharReciboGrande(doc, p){
   doc.text('Bombas Êxito · Documento gerado automaticamente', 74, 200, { align: 'center' });
 
 }
- /* ============================================================
-   FECHAR O DIA — Apaga só os pedidos ENTREGUES
-   Mantém os pendentes para continuar a trabalhar
-   ============================================================ */
-document.addEventListener('click', e => {
+/* ---------- FECHAR O DIA ---------- */
+document.addEventListener('click', async e => {
   if(e.target.closest('#fecharDia')){
     const pedidos = Store.get('exito_pedidos', []);
-    const entregues = pedidos.filter(p => p.status === 'ENTREGUE').length;
+    const entregues = pedidos.filter(p => p.status === 'ENTREGUE');
     const pendentes = pedidos.filter(p =>
       p.status === 'PENDENTE' || p.status === 'PREPARACAO' || p.status === 'CAMINHO'
     ).length;
 
-    if(!entregues){
+    if(!entregues.length){
       alert('Não há pedidos entregues para fechar.');
       return;
     }
 
     const msg = `📅 FECHAR O DIA\n\n` +
-                `• ${entregues} pedidos ENTREGUES serão apagados\n` +
+                `• ${entregues.length} pedidos ENTREGUES serão apagados\n` +
                 `• ${pendentes} pedidos PENDENTES ficam guardados\n\n` +
                 `Continuar?`;
 
     if(!confirm(msg)) return;
 
+    // Apaga cada entregue no Supabase
+    if(supabaseClient){
+      for(const p of entregues){
+        if(p.dbId){
+          await supabaseClient.from('pedidos').delete().eq('id', p.dbId);
+        }
+      }
+    }
+
     const restantes = pedidos.filter(p => p.status !== 'ENTREGUE');
     Store.set('exito_pedidos', restantes);
     renderPendentes();
     renderTabela();
-    alert(`✅ Dia fechado!\n${entregues} pedidos entregues foram apagados.`);
+    alert(`✅ Dia fechado!\n${entregues.length} pedidos apagados.`);
   }
 });
 
-/* ============================================================
-   APAGAR TUDO — Limpa TODOS os pedidos (o extrato inteiro)
-   ============================================================ */
-document.addEventListener('click', e => {
+/* ---------- APAGAR TUDO ---------- */
+document.addEventListener('click', async e => {
   if(e.target.closest('#apagarTudo')){
     const pedidos = Store.get('exito_pedidos', []);
     if(!pedidos.length){
@@ -780,15 +882,20 @@ document.addEventListener('click', e => {
     }
 
     const msg = `🗑️ APAGAR TUDO\n\n` +
-                `⚠️ Isto vai apagar TODOS os ${pedidos.length} pedidos do extrato.\n\n` +
+                `⚠️ Isto vai apagar TODOS os ${pedidos.length} pedidos.\n\n` +
                 `Ação IRREVERSÍVEL. Continuar?`;
 
     if(!confirm(msg)) return;
-    if(!confirm('⚠️ TEM A CERTEZA? Não há como recuperar.')) return;
+    if(!confirm('⚠️ TEM A CERTEZA?')) return;
+
+    // Apaga todos no Supabase
+    if(supabaseClient){
+      await supabaseClient.from('pedidos').delete().neq('id', 0);
+    }
 
     Store.set('exito_pedidos', []);
     renderPendentes();
     renderTabela();
-    alert('✅ Extrato limpo. Começou um novo dia.');
+    alert('✅ Extrato limpo.');
   }
 });

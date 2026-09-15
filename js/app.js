@@ -9,6 +9,21 @@ const Store = {
   },
   set(key, value){ localStorage.setItem(key, JSON.stringify(value)); }
 };
+/* ============================================================
+   SUPABASE — Ligação
+   ============================================================ */
+let supabaseClient = null;
+try{
+  if(window.supabase && CONFIG.supabase){
+    supabaseClient = window.supabase.createClient(
+      CONFIG.supabase.url,
+      CONFIG.supabase.key
+    );
+    console.log('✅ Supabase ligado');
+  }
+}catch(err){
+  console.error('❌ Erro Supabase:', err);
+}
 
 function getProdutos(){ return Store.get('exito_produtos', PRODUTOS_PADRAO); }
 function getConfig(){ return Store.get('exito_config', CONFIG); }
@@ -459,27 +474,39 @@ $('#confirmOrder')?.addEventListener('click', () => {
 
   const pedidos = Store.get('exito_pedidos', []);
   const pedido = {
-    id: 'P' + Date.now(),
-    data: new Date().toISOString(),
-    cliente: state.nome,
-    telefone: state.telefone,
-    produto: p.nome,
-    quantidade: state.quantidade,
-    unidade,
-    precoUnit,
-    subtotal,
-    modo: state.modo,
-    velocidade: state.velocidade,
-    zona: zonaNome,
-    tempo,
-    endereco: state.endereco,
-    referencia: state.referencia,
-    entrega,
-    total: totalArr,      // ← guarda já arredondado
-    status: 'PENDENTE'
-  };
-  pedidos.unshift(pedido);
+  cliente: state.nome,
+  telefone: state.telefone,
+  produto: p.nome,
+  quantidade: state.quantidade,
+  unidade,
+  preco_unit: precoUnit,
+  subtotal,
+  modo: state.modo,
+  velocidade: state.velocidade,
+  zona: zonaNome,
+  tempo,
+  endereco: state.endereco,
+  referencia: state.referencia,
+  taxa: entrega,
+  total: totalArr,
+  status: 'PENDENTE'
+};
+
+/* ✅ ENVIA PARA O SUPABASE */
+if(supabaseClient){
+  supabaseClient
+    .from('pedidos')
+    .insert([pedido])
+    .then(({ error }) => {
+      if(error) console.error('❌ Erro ao gravar:', error);
+      else console.log('✅ Pedido gravado no Supabase');
+    });
+} else {
+  // Fallback: guarda localmente
+  const pedidos = Store.get('exito_pedidos', []);
+  pedidos.unshift({ ...pedido, id: 'P' + Date.now(), data: new Date().toISOString() });
   Store.set('exito_pedidos', pedidos);
+}
 
   const linhas = [
     cfg.mensagemWhatsApp || 'Olá, Bombas Êxito!',
@@ -502,7 +529,7 @@ $('#confirmOrder')?.addEventListener('click', () => {
     '',
     `TOTAL: ${totalArr} MT`,
     '',
-    `Pedido nº: ${pedido.id}`,
+    `Pedido registado no sistema.`,
     'Pedido realizado através do site das Bombas Êxito.'
   ].filter(Boolean).join('\n');
 
